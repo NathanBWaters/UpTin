@@ -79,14 +79,15 @@ def applyCallback(*pArgs) :
 
 # used to compare the script you have
 # against the one in the database
-def compareScript(scriptName):
+def getScriptInfo(scriptName, commit_id):
     print 'Checking backend with scriptName: ' + scriptName
-    serverResponse = requests.get(serverURL + "script/" + scriptName).text
+    serverResponse = requests.get(serverURL + "script/" + scriptName + "/" + commit_id).text
     resultDict = json.loads(serverResponse)  # result is now a dict
     # print serverResponse
     # print "----"
     # print resultJSON
     return resultDict
+
 
 
 def loadScripts():
@@ -102,13 +103,23 @@ def loadScripts():
             try:
                 osResp = subprocess.check_output("git rev-list --format=format:'%ci' --max-count=1 `git rev-parse HEAD`", cwd="/Users/NathanBWaters/Library/Preferences/Autodesk/maya/2015-x64/scripts/TinUp/randomBoxes", shell=True)
                 osResp = osResp.split("\n")
-                backendResp = compareScript(dirname)
-                scriptArray.append( {'name' : dirname, 'local_commit_id': osResp[0], 'local_timestamp': osResp[1],
-                    'latest_timestamp': backendResp['commit_timestamp'],
-                    'committer': backendResp['committer'],
-                    'point_of_contact' : backendResp['point_of_contact'],
-                    'upvotePercentage' : backendResp['upvotePercentage'],
+                local_commit_id = osResp[0].split(" ")[1]
+                local_timestamp = osResp[1]
+                print local_commit_id
+                print local_timestamp
+                backendResp = getScriptInfo(dirname, local_commit_id )
+                scriptArray.append( {
+                    'name' : dirname,
+                    'local_commit_id': local_commit_id,
                     'latest_commit_id' : backendResp['commit_id'],
+                    'local_timestamp': local_timestamp,
+                    'latest_timestamp': backendResp['latest_commit_timestamp'],
+                    'latest_committer': backendResp['latest_committer'],
+                    'point_of_contact' : backendResp['point_of_contact'],
+                    'latest_upvote_percentage' : backendResp['latest_upvote_percentage'],
+                    'local_upvote_percentage' : backendResp['local_upvote_percentage'],
+                    'is_latest' : backendResp['is_latest'],
+                    'github_url' : backendResp['backendResp'],
                     } )
                 print scriptArray[-1]
             except subprocess.CalledProcessError as e:
