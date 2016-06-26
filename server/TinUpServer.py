@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, Response
+import flask
 import psycopg2 as db
 import os
 import boto3
@@ -38,10 +39,25 @@ def getScript(script_name):
     cursor.execute("SELECT * from maya_scripts AS ms JOIN script_versions AS sv ON (ms.script_id = sv.script_id) WHERE ms.script_name = %s;", [script_name])
 
     response = cursor.fetchone()
-    
-    print(response)
 
-    return 'script_name is ' + script_name + '\nresponse is \n ' + str(response)
+
+    if (response[10] == 0): # we do not want to divide by 0
+        upvotePercentage = '100.00%'
+    else: # should return a stringified float like 95.42%
+        upvotePercentage = str(response[9] / (response[9] + float(response[10])) * 100)[0:5] + "%"
+
+    print upvotePercentage
+
+    data = json.dumps({'script_name': response[1], 'point_of_contact': response[2],
+        'github_url': response[3], 'committer': response[6], 'commit_id': response[7],
+        'commit_timestamp': response[8], 'upvotePercentage': upvotePercentage}, sort_keys=True,
+        indent=4, separators=(',', ': '))
+
+    response = Response(response=data,
+    status=200, \
+    mimetype="application/json")
+
+    return response
 
 if __name__ == "__main__":
     # test()

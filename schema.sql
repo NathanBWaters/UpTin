@@ -23,12 +23,24 @@ CREATE TABLE script_versions (
     commit_timestamp	varchar(150),
     upvotes		int,
     downvotes		int,
-    FOREIGN KEY (script_id) REFERENCES maya_scripts (script_id)
+    FOREIGN KEY (script_id) REFERENCES maya_scripts (script_id),
+    UNIQUE(commit_id),
+    UNIQUE(commit_timestamp, script_id)
 );
 
 INSERT INTO script_versions (script_id, committer, commit_id, commit_timestamp, upvotes, downvotes) VALUES 
-(1, 'watersnathan1@gmail.com', '43cbfd3d4513b9fc9a10037ebd2583200bf3e801', '2016-06-26 12:48:28', 25, 3);
+(1, 'fakeemail @ yahoo.com', '61b1b69599d5dd0278060140cfff0e5ea87b8846', '2016-06-26 12:48:28', 95, 4);
 INSERT INTO script_versions (script_id, committer, commit_id, commit_timestamp, upvotes, downvotes) VALUES 
-(1, 'watersnathan1@gmail.com', '43cbfd3d4513b9fc9a10037ebd2583200bf3e801', '2016-06-26 12:48:28', 25, 3);
+(1, 'fakeemail @ yahoo.com', '43cbfd3d4513b9fc9a10037ebd2583200bf3e801', '2016-06-26 12:56:28', 25, 3);
+INSERT INTO script_versions (script_id, committer, commit_id, commit_timestamp, upvotes, downvotes) VALUES 
+(2, 'fakeemail @ yahoo.com', '7c5d33e79a903324f81efa1385c1efc0c3c73443', '2016-06-26 12:48:28', 40, 2);
+INSERT INTO script_versions (script_id, committer, commit_id, commit_timestamp, upvotes, downvotes) VALUES 
+(2, 'fakeemail @ yahoo.com', 'd7fb6bde8fe16a54ec86030a6701661dc0b8c819', '2016-06-26 15:01:28', 13, 25);
 
-SELECT * from maya_scripts AS ms JOIN script_versions AS sv ON (ms.script_id = sv.script_id);
+-- select * from script_versions;
+
+-- get script and version that matches commit_id and script_name
+SELECT * from maya_scripts AS ms JOIN script_versions AS sv ON (ms.script_id = sv.script_id) WHERE (ms.script_name='randomBoxes') AND (sv.commit_id = '43cbfd3d4513b9fc9a10037ebd2583200bf3e801');
+
+-- get latest version of script that matches script_name
+SELECT * from maya_scripts AS ms JOIN script_versions AS sv ON (ms.script_id = sv.script_id) WHERE (ms.script_name='randomSpheres') ORDER BY sv.script_version_id DESC LIMIT 1
