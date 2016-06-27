@@ -53,10 +53,10 @@ Continuous Deployment for Maya plugins.
 
 * git clone https://github.com/NathanBWaters/UpTin
 * cd UpTin
-* export UPTIN_ID="<Your Master Instance Identifier>"
-* export UPTIN_HOST="<RDS Endpoint without port>"
-* export UPTIN_USERNAME="<Your Master Username>"
-* export UPTIN_PASSWORD="<Your Master Password>"
+* export UPTIN_ID="Your Master Instance Identifier"
+* export UPTIN_HOST="RDS Endpoint without port"
+* export UPTIN_USERNAME="Your Master Username"
+* export UPTIN_PASSWORD="Your Master Password"
 * `sh server/setup.sh`
 * `python server/UpTinServer.py` 
 
