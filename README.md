@@ -24,7 +24,7 @@ Continuous Deployment for Maya plugins.
 ### Set up Jenkins 
 * `docker run --rm -p 2222:2222 -p 8080:8080 -p 8081:8081 -p 9418:9418 -ti jenkinsci/workflow-demo`
 * Sample code of what Jenkins should do
-* 	~~~~
+~~~~
 #!/bin/sh
 echo "Started.  Now print the GIT_COMMIT" 
 git clone https://github.com/NathanBWaters/randomBoxes
