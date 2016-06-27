@@ -58,22 +58,28 @@ def test():
         print(bucket.name)
 
 # connection to PostgreSQL RDS database
+# use environment variables for security purposes
 def connect_db():
-    print os.environ['TINUP_HOST']
-    print os.environ['TINUP_USERNAME']
-    print os.environ['TINUP_PASSWORD']
-    host = os.environ['TINUP_HOST']
-    username = os.environ['TINUP_USERNAME']
-    password =  os.environ['TINUP_PASSWORD']
+    host = os.environ['UPTIN_HOST']
+    username = os.environ['UPTIN_USERNAME']
+    password =  os.environ['UPTIN_PASSWORD']
     global db_conn
-    db_conn= db.connect("host='tinup-instance.c6bsisktzdvp.us-west-2.rds.amazonaws.com' dbname='postgres' user='TinUp_Username' password='TinUp_Password'")
+    postgreSQLConn = "host=\'" + host + "\' dbname='postgres' user=\'" + username + "\' password=\'" + password + "\'"
+    db_conn= db.connect(postgreSQLConn)
 
 app = Flask(__name__)
 
 @app.route("/")
 @crossdomain(origin='*')
 def hello():
-    return "Hello World from TinUp!"
+    data = json.dumps({
+        'status': 'success',
+        'message': "Hello World from UpTin!"
+        }, sort_keys=True,
+        indent=4, separators=(',', ': '))
+    return Response(response=data,
+    status=200, \
+    mimetype="application/json")
 
 def calculateVotePercentage(upvotes, downvotes):
     if (downvotes == 0): # we do not want to divide by 0

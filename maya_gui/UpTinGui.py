@@ -7,9 +7,10 @@ from os.path import isfile, join
 import subprocess
 import requests
 import json
+from functools import partial
 
-tinupPATH = os.environ['TINUP_PATH']
-serverURL = "http://localhost:5000/"
+upTinPATH = os.environ['UPTIN_PATH']
+serverURL = "http://tinupserver.nathanwaters.io:8080/"
 scriptArray = []
 connectionResponse = "Not tested"
 
@@ -34,13 +35,18 @@ def createUI(pWindowTitle, pApplyCallback, connectionResponse):
 
 
     # used to submit an upvote
-    def postUpvote(arg):
-        print "Called upvote"
+    def postUpvote(script_name, commit_id, args):
+        print "Called upvote on " + script_name
 
 
     # used to submit a downvote
-    def postDownvote(arg):
-        print "Called downvote"
+    def postDownvote(script_name, commit_id, args):
+        print "Called downvote on " + script_name
+
+    # user requests to update Maya script to newest code
+    def updateCode(script_name, args):
+        print "Called updateCode on " + script_name
+
 
     def separateScripts():
         # fill lack of update button
@@ -76,11 +82,11 @@ def createUI(pWindowTitle, pApplyCallback, connectionResponse):
         cmds.text( label=mayaScript['local_upvote_percentage'])
         cmds.separator(height=10, width=50, style='none')
 
-        cmds.button(label='Upvote', command=postUpvote )
-        cmds.button(label='Downvote', command=postDownvote )
+        cmds.button(label='Upvote', command=partial(postUpvote, mayaScript['script_name'], mayaScript['local_commit_id']))
+        cmds.button(label='Downvote', command=partial(postDownvote, mayaScript['script_name'], mayaScript['local_commit_id']))
         if (mayaScript['is_latest'] == False):
             # provide upgrade button!
-            cmds.button(label='Upgrade', command=pApplyCallback )
+            cmds.button(label='Get Latest', command=partial(udpateCode, mayaScript['script_name']) )
 
             # input information about latest version of the script
             cmds.text( label="  -- latest")
@@ -128,12 +134,12 @@ def getScriptInfo(scriptName, commit_id):
 
 def loadScripts():
     global scriptArray
-    for dirname in os.listdir(tinupPATH):
+    for dirname in os.listdir(upTinPATH):
         # print path to all subdirectories first.
         print dirname
-        print tinupPATH + "/" + dirname
-        if (os.path.isdir(tinupPATH + "/" + dirname ) & os.path.isdir(tinupPATH + "/" + dirname + "/.git")):
-            mayaToolRepo = tinupPATH + "/" + dirname
+        print upTinPATH + "/" + dirname
+        if (os.path.isdir(upTinPATH + "/" + dirname ) & os.path.isdir(upTinPATH + "/" + dirname + "/.git")):
+            mayaToolRepo = upTinPATH + "/" + dirname
             # get commit id and timestamp
             try:
                 osResp = subprocess.check_output("git rev-list --format=format:'%ci' --max-count=1 `git rev-parse HEAD`", cwd=mayaToolRepo, shell=True)
