@@ -83,7 +83,5 @@ curl -H "Content-Type: application/json" -X POST -d '{"github_url":"'"$GIT_URL"'
 * Update the following line: `serverURL = "http://uptin-server.nathanwaters.io:8080/"` to point to your server.  
 * Once you run the script, it will go through all of the git repositories inside your UPTIN_PATH folder and display them.  
 * You now have the option to upvote, downvote, and update your scripts! 
-* 
-
 
 
