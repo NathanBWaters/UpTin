@@ -15,7 +15,7 @@ Continuous Deployment for Maya plugins.
 * The server is what your Maya plugin communicates with.  It has two main endpoints
  * `GET` `/script/<script_name>/<commit_id>`
   * This will return all of the necessary information about your script, including whether or not it's the latest version of the script.
-  * ~~~~
+~~~~
    {
     "github_url": "https://github.com/NathanBWaters/randomSpheres",
     "is_latest": false,
@@ -31,7 +31,7 @@ Continuous Deployment for Maya plugins.
     "script_name": "randomSpheres",
     "status": "success"
   }
-  ~~~~
+~~~~
 
 * git clone https://github.com/NathanBWaters/UpTin
 * cd UpTin
