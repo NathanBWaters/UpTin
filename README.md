@@ -12,6 +12,27 @@ Continuous Deployment for Maya plugins.
 * Write down your Master Instance Identifier, Username, and Password, becuase you'll be setting your environment variables with them soon.
 
 ### Start server
+* The server is what your Maya plugin communicates with.  It has two main endpoints
+ * `GET` `/script/<script_name>/<commit_id>`
+  * This will return all of the necessary information about your script, including whether or not it's the latest version of the script.
+  * ~~~~
+   {
+    "github_url": "https://github.com/NathanBWaters/randomSpheres",
+    "is_latest": false,
+    "latest_commit_id": "02f3c9750b492c0cbab6d732efff4cdbbbf0ba77",
+    "latest_commit_timestamp": "Mon Jun 27 03:24:04 2016",
+    "latest_committer": "",
+    "latest_upvote_percentage": "100.00%",
+    "local_commit_id": "d7fb6bde8fe16a54ec86030a6701661dc0b8c819",
+    "local_commit_timestamp": "2016-06-26 15:01:28",
+    "local_committer": "fakeemail @ yahoo.com",
+    "local_upvote_percentage": "34.21%",
+    "point_of_contact": "fakeemail @ yahoo.com",
+    "script_name": "randomSpheres",
+    "status": "success"
+  }
+  ~~~~
+
 * git clone https://github.com/NathanBWaters/UpTin
 * cd UpTin
 * export UPTIN_ID="<Your Master Instance Identifier>"
@@ -26,9 +47,13 @@ Continuous Deployment for Maya plugins.
 * Sample code of what Jenkins should do
 ~~~~
 #!/bin/sh
-echo "Started.  Now print the GIT_COMMIT" 
 git clone https://github.com/NathanBWaters/randomBoxes
 cd randomBoxes
+#####################
+## This is where you run your tests
+#####################
+
+# If it passed, then push the commit information to your server
 curl -H "Content-Type: application/json" -X POST -d '{"github_url":"'"$GIT_URL"'", "latest_commit_id":"'"$GIT_COMMIT"'", "latest_commit_timestamp": "'"$(git log -1 --format=%cd --date=local)"'","latest_committer": "'"$GIT_COMMITTER_EMAIL"'","point_of_contact": "'"$GIT_AUTHOR_EMAIL"'","script_name":"randomBoxes"}' http://tinupserver.nathanwaters.io:8080/script
 ~~~~
 
