@@ -56,6 +56,8 @@ Continuous Deployment for Maya plugins.
 * `python server/UpTinServer.py` 
 
 ### Set up Jenkins 
+[logo]: https://raw.githubusercontent.com/NathanBWaters/UpTin/master/documentation/jenkins-trigger.png "Jenkins"
+
 * `docker run --rm -p 2222:2222 -p 8080:8080 -p 8081:8081 -p 9418:9418 -ti jenkinsci/workflow-demo`
 * ![alt text][documentation/jenkins-trigger.png]
 * Sample code of what Jenkins should do
