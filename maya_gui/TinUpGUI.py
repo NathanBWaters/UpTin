@@ -20,15 +20,42 @@ def createUI(pWindowTitle, pApplyCallback, connectionResponse):
 
     cmds.window(windowID, title=pWindowTitle, sizeable=False, resizeToFitChildren=True )
 
-    cmds.rowColumnLayout(numberOfColumns=7, columnWidth=[(1,150), (1,50), (1,100), (1,50), (1,100), (1,50), (1,100) ], columnOffset=[(5, 'right',1) ] )
+    cmds.rowColumnLayout(numberOfColumns=9, columnWidth=[(1,250), (1,50), (1,100), (1,50), (1,100), (1,50), (1,100) ], columnOffset=[(5, 'right',1) ] )
 
     cmds.text( label='Tool Name')
-    cmds.separator(height=40, width=50, style='none')
+    cmds.text( label='Timestamp')
     cmds.text( label='Is Latest')
     cmds.separator(height=40, width=50, style='none')
     cmds.text( label='Positive Votes')
     cmds.separator(height=40, width=50, style='none')
     cmds.separator(h=10, style='none')
+    cmds.separator(h=10, style='none')
+    cmds.separator(h=10, style='none')
+
+
+    # used to submit an upvote
+    def postUpvote(arg):
+        print "Called upvote"
+
+
+    # used to submit a downvote
+    def postDownvote(arg):
+        print "Called downvote"
+
+    def separateScripts():
+        # fill lack of update button
+        cmds.separator(height=10, width=50, style='none')
+
+        # dashes to separate
+        cmds.text( label="---------------------")
+        cmds.separator(height=10, width=50, style='none')
+        cmds.separator(height=10, width=50, style='none')
+        cmds.separator(height=10, width=50, style='none')
+        cmds.separator(height=10, width=50, style='none')
+        cmds.separator(height=10, width=50, style='none')
+        cmds.separator(height=10, width=50, style='none')
+        cmds.separator(height=10, width=50, style='none')
+        cmds.separator(height=10, width=50, style='none')
 
     # determine if your local commit is the latest
     def isLatestCallback(mayaScript):
@@ -41,28 +68,38 @@ def createUI(pWindowTitle, pApplyCallback, connectionResponse):
 
     # create rows for each script in TINUP_PATH
     for mayaScript in scriptArray:
-        cmds.text( label=mayaScript['name'])
-        cmds.separator(height=10, width=50, style='none')
-        cmds.text( label=isLatestCallback(mayaScript))
-        cmds.separator(height=10, width=50, style='none')
-        cmds.text( label=mayaScript['upvotePercentage'])
-        cmds.separator(height=10, width=50, style='none')
-        cmds.button(label='Upgrade', command=pApplyCallback )
 
+        cmds.text( label=mayaScript['script_name'])
+        cmds.text( label=mayaScript['local_commit_timestamp'])
+        cmds.text( label=mayaScript['is_latest'])
+        cmds.separator(height=10, width=50, style='none')
+        cmds.text( label=mayaScript['local_upvote_percentage'])
+        cmds.separator(height=10, width=50, style='none')
 
+        cmds.button(label='Upvote', command=postUpvote )
+        cmds.button(label='Downvote', command=postDownvote )
+        if (mayaScript['is_latest'] == False):
+            # provide upgrade button!
+            cmds.button(label='Upgrade', command=pApplyCallback )
 
+            # input information about latest version of the script
+            cmds.text( label="  -- latest")
+            cmds.text( label=mayaScript['latest_commit_timestamp'])
+            cmds.separator(height=10, width=50, style='none')
+            cmds.separator(height=10, width=50, style='none')
+            cmds.text( label=mayaScript['latest_upvote_percentage'])
+            cmds.separator(height=10, width=50, style='none')
+
+        else:
+            separateScripts()
+
+    cmds.separator(height=10, width=50, style='none')
+    cmds.separator(height=10, width=50, style='none')
+    separateScripts()
 
     cmds.separator(h=10, style='none')
     cmds.separator(h=10, style='none')
     cmds.separator(h=10, style='none')
-
-    cmds.button(label='Apply', command=pApplyCallback )
-
-    def cancelCallback(*pArgs):
-        if cmds.window(windowID, exists=True):
-            cmds.deleteUI( windowID )
-
-    cmds.button (label='Cancel', command=cancelCallback)
 
     # see if you can connect to the server
     if (connectionResponse == "Hello World from TinUp!"):
@@ -80,12 +117,11 @@ def applyCallback(*pArgs) :
 # used to compare the script you have
 # against the one in the database
 def getScriptInfo(scriptName, commit_id):
-    print 'Checking backend with scriptName: ' + scriptName
-    serverResponse = requests.get(serverURL + "script/" + scriptName + "/" + commit_id).text
+
+    url = serverURL + "script/" + scriptName + "/" + commit_id
+    print 'Checking backend with scriptName: ' + scriptName + "\n and url: " + url
+    serverResponse = requests.get(url).text
     resultDict = json.loads(serverResponse)  # result is now a dict
-    # print serverResponse
-    # print "----"
-    # print resultJSON
     return resultDict
 
 
@@ -98,29 +134,15 @@ def loadScripts():
         print tinupPATH + "/" + dirname
         if (os.path.isdir(tinupPATH + "/" + dirname ) & os.path.isdir(tinupPATH + "/" + dirname + "/.git")):
             mayaToolRepo = tinupPATH + "/" + dirname
-            command = "git status /Users/NathanBWaters/Library/Preferences/Autodesk/maya/2015-x64/scripts/TinUp/randomBoxes"
             # get commit id and timestamp
             try:
-                osResp = subprocess.check_output("git rev-list --format=format:'%ci' --max-count=1 `git rev-parse HEAD`", cwd="/Users/NathanBWaters/Library/Preferences/Autodesk/maya/2015-x64/scripts/TinUp/randomBoxes", shell=True)
-                osResp = osResp.split("\n")
-                local_commit_id = osResp[0].split(" ")[1]
-                local_timestamp = osResp[1]
+                osResp = subprocess.check_output("git rev-list --format=format:'%ci' --max-count=1 `git rev-parse HEAD`", cwd=mayaToolRepo, shell=True)
+                local_timestamp = osResp.split("\n")[1]
+                local_commit_id = subprocess.check_output("git log --format='%H' -n 1", cwd=mayaToolRepo, shell=True).strip()
                 print local_commit_id
                 print local_timestamp
                 backendResp = getScriptInfo(dirname, local_commit_id )
-                scriptArray.append( {
-                    'name' : dirname,
-                    'local_commit_id': local_commit_id,
-                    'latest_commit_id' : backendResp['commit_id'],
-                    'local_timestamp': local_timestamp,
-                    'latest_timestamp': backendResp['latest_commit_timestamp'],
-                    'latest_committer': backendResp['latest_committer'],
-                    'point_of_contact' : backendResp['point_of_contact'],
-                    'latest_upvote_percentage' : backendResp['latest_upvote_percentage'],
-                    'local_upvote_percentage' : backendResp['local_upvote_percentage'],
-                    'is_latest' : backendResp['is_latest'],
-                    'github_url' : backendResp['backendResp'],
-                    } )
+                scriptArray.append(backendResp)
                 print scriptArray[-1]
             except subprocess.CalledProcessError as e:
                 print(e)
@@ -128,6 +150,7 @@ def loadScripts():
 def testConnectionCallback():
     connectionResponse = requests.get(serverURL).text
     return connectionResponse
+
 
 loadScripts();
 createUI('UpTin', applyCallback, testConnectionCallback())
