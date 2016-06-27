@@ -1,6 +1,8 @@
 # UpTin
 Continuous Deployment for Maya plugins.  
 
+![UpTin Menu](https://raw.githubusercontent.com/NathanBWaters/UpTin/master/documentation/uptin-menu.png "UpTin Menu")
+
 
 
 ## Setting up UpTin
@@ -9,8 +11,11 @@ Continuous Deployment for Maya plugins.
 * The database allows us to store pertinent information about our commits that Git doesn't store by itself - such as the likes and dislikes of the different versions by your Artists as well as comments.
 * The python server will be communicating with the database and requires a connection with it in order to start. 
 * Make sure your database is open on 5432 to your local computer as well as the instance the UpTin server will be hosted on.  Do this through your RDS security group settings.  
+![SecGroup](https://raw.githubusercontent.com/NathanBWaters/UpTin/master/documentation/security-group2.png "SecGroup")
 * Write down your Master Instance Identifier, Username, and Password, becuase you'll be setting your environment variables with them soon.
+![RDS Form](https://raw.githubusercontent.com/NathanBWaters/UpTin/master/documentation/rds-form.png "RDS Form")
 * Connect to the database using pgAdmin3 and open schema.sql in this repository.  Run the schema to begin populating your RDS PostgreSQL instance.
+![Schema](https://raw.githubusercontent.com/NathanBWaters/UpTin/master/documentation/uptin-schema.png "Schema")
 
 ### Start server
 * The server is what your Maya plugin communicates with.  It has two main endpoints
@@ -58,8 +63,6 @@ Continuous Deployment for Maya plugins.
 ### Set up Jenkins 
 
 ![Jenkins Trigger](https://raw.githubusercontent.com/NathanBWaters/UpTin/master/documentation/jenkins-trigger.png "Jenkins Trigger")
-
-[logo]:  "Jenkins"
 
 * `docker run --rm -p 2222:2222 -p 8080:8080 -p 8081:8081 -p 9418:9418 -ti jenkinsci/workflow-demo`
 * ![alt text][documentation/jenkins-trigger.png]
