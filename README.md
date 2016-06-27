@@ -24,11 +24,13 @@ Continuous Deployment for Maya plugins.
 ### Set up Jenkins 
 * `docker run --rm -p 2222:2222 -p 8080:8080 -p 8081:8081 -p 9418:9418 -ti jenkinsci/workflow-demo`
 * Sample code of what Jenkins should do
-* ```#!/bin/sh
+* 	~~~~
+#!/bin/sh
 echo "Started.  Now print the GIT_COMMIT" 
 git clone https://github.com/NathanBWaters/randomBoxes
 cd randomBoxes
-curl -H "Content-Type: application/json" -X POST -d '{"github_url":"'"$GIT_URL"'", "latest_commit_id":"'"$GIT_COMMIT"'", "latest_commit_timestamp": "'"$(git log -1 --format=%cd --date=local)"'","latest_committer": "'"$GIT_COMMITTER_EMAIL"'","point_of_contact": "'"$GIT_AUTHOR_EMAIL"'","script_name":"randomBoxes"}' http://tinupserver.nathanwaters.io:8080/script```
+curl -H "Content-Type: application/json" -X POST -d '{"github_url":"'"$GIT_URL"'", "latest_commit_id":"'"$GIT_COMMIT"'", "latest_commit_timestamp": "'"$(git log -1 --format=%cd --date=local)"'","latest_committer": "'"$GIT_COMMITTER_EMAIL"'","point_of_contact": "'"$GIT_AUTHOR_EMAIL"'","script_name":"randomBoxes"}' http://tinupserver.nathanwaters.io:8080/script
+~~~~
 
 ### Set up GUI
 * Put your custom plugins inside a folder located in your `/scripts` folder. For example, I put my scripts inside `/scripts/UpTin`.
