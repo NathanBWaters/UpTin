@@ -31,7 +31,7 @@ Continuous Deployment for Maya plugins.
 }
 ~~~~
 
- * `GET` `/script/<script_name>/<commit_id>`
+ * `GET` `/script/{script_name}/{commit_id}`
   * This will return all of the necessary information about your script, including whether or not it's the latest version of the script.
 ~~~~
    {
@@ -85,8 +85,8 @@ curl -H "Content-Type: application/json" -X POST -d '{"github_url":"'"$GIT_URL"'
 * Put your custom plugins inside a folder located in your `/scripts` folder. For example, I put my scripts inside `/scripts/UpTin`.
 * Set an UPTIN_PATH environment variable in your Maya.env file to point to your newly created folder.  The Maya.env file is how you can set environment variables for you MEL and Python scripts inside Maya. 
 * Your Maya.env file is in:
-  *  Mac: /Users/<user>/Library/Preferences/Autodesk/maya/<maya-version>
-  *  Windows: <drive>:\Documents and Settings\<user>\My Documents\maya\<maya-version>
+  *  Mac: /Users/{user}/Library/Preferences/Autodesk/maya/{maya-version}
+  *  Windows: {drive}:\Documents and Settings\{user}\My Documents\maya\{maya-version}
 * Open Maya.  Open the script editor menu.
 * Load the `maya_gui/UpTinGui.py` file from this repo into Maya. 
 * Update the following line: `serverURL = "http://uptin-server.nathanwaters.io:8080/"` to point to your server.  
