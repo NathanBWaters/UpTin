@@ -10,9 +10,22 @@ Continuous Deployment for Maya plugins.
 * The python server will be communicating with the database and requires a connection with it in order to start. 
 * Make sure your database is open on 5432 to your local computer as well as the instance the UpTin server will be hosted on.  Do this through your RDS security group settings.  
 * Write down your Master Instance Identifier, Username, and Password, becuase you'll be setting your environment variables with them soon.
+* Connect to the database using pgAdmin3 and open schema.sql in this repository.  Run the schema to begin populating your RDS PostgreSQL instance.
 
 ### Start server
 * The server is what your Maya plugin communicates with.  It has two main endpoints
+ * `POST` `/script`  You must post a JSON with the following information 
+~~~~
+{
+    "github_url": "a2342444aa",
+    "latest_commit_id": "4bc92a8437445442c4b55a774b96df5973e9a7",
+    "latest_commit_timestamp": "2016-09-26 12:07:28",
+    "latest_committer": "fakeemail @ yahoo.com",
+    "point_of_contact": "fakeemail @ yahoo.com",
+    "script_name": "randomSpheres5"
+}
+~~~~
+
  * `GET` `/script/<script_name>/<commit_id>`
   * This will return all of the necessary information about your script, including whether or not it's the latest version of the script.
 ~~~~
@@ -53,7 +66,9 @@ cd randomBoxes
 ## This is where you run your tests
 #####################
 
-# If it passed, then push the commit information to your server
+# If it passed your tests, push the git commit information to your server
+# This curl request is hitting the `POST` `/script` endpoint of your server
+# You will have to update multiple variables in this command, but the GIT environment variables should be present thanks to Jenkins Git Plugin.  
 curl -H "Content-Type: application/json" -X POST -d '{"github_url":"'"$GIT_URL"'", "latest_commit_id":"'"$GIT_COMMIT"'", "latest_commit_timestamp": "'"$(git log -1 --format=%cd --date=local)"'","latest_committer": "'"$GIT_COMMITTER_EMAIL"'","point_of_contact": "'"$GIT_AUTHOR_EMAIL"'","script_name":"randomBoxes"}' http://tinupserver.nathanwaters.io:8080/script
 ~~~~
 
