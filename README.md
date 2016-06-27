@@ -4,6 +4,8 @@ Continuous Deployment for Maya plugins.
 ![UpTin Menu](https://raw.githubusercontent.com/NathanBWaters/UpTin/master/documentation/uptin-menu.png "UpTin Menu")
 
 
+## See it in Action!
+[https://vimeo.com/172483275](https://vimeo.com/172483275)
 
 ## Setting up UpTin
 
