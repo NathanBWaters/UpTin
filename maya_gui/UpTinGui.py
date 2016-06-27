@@ -10,9 +10,14 @@ import json
 from functools import partial
 
 upTinPATH = os.environ['UPTIN_PATH']
-serverURL = "http://tinupserver.nathanwaters.io:8080/"
+serverURL = "http://uptin-server.nathanwaters.io:8080/"
 scriptArray = []
 connectionResponse = "Not tested"
+
+def startWindow():
+    loadScripts();
+    createUI('UpTin', applyCallback, testConnectionCallback())
+
 
 def createUI(pWindowTitle, pApplyCallback, connectionResponse):
     windowID = 'myWindowID'
@@ -21,14 +26,13 @@ def createUI(pWindowTitle, pApplyCallback, connectionResponse):
 
     cmds.window(windowID, title=pWindowTitle, sizeable=False, resizeToFitChildren=True )
 
-    cmds.rowColumnLayout(numberOfColumns=9, columnWidth=[(1,250), (1,50), (1,100), (1,50), (1,100), (1,50), (1,100) ], columnOffset=[(5, 'right',1) ] )
+    cmds.rowColumnLayout(numberOfColumns=8 )
 
     cmds.text( label='Tool Name')
     cmds.text( label='Timestamp')
     cmds.text( label='Is Latest')
-    cmds.separator(height=40, width=50, style='none')
     cmds.text( label='Positive Votes')
-    cmds.separator(height=40, width=50, style='none')
+    cmds.separator(height=40, width=5, style='none')
     cmds.separator(h=10, style='none')
     cmds.separator(h=10, style='none')
     cmds.separator(h=10, style='none')
@@ -43,25 +47,41 @@ def createUI(pWindowTitle, pApplyCallback, connectionResponse):
     def postDownvote(script_name, commit_id, args):
         print "Called downvote on " + script_name
 
+    # used for clearing the window screen
+    def refreshWindow(*pArgs):
+        # delete items in scriptArray
+        global scriptArray
+        scriptArray = []
+
+        # delete Window itself
+        if cmds.window(windowID, exists=True):
+            cmds.deleteUI( windowID )
+
+        # get all of the scripts again
+        loadScripts();
+        # call open the window again
+        createUI('UpTin', applyCallback, testConnectionCallback())
+
+
     # user requests to update Maya script to newest code
     def updateCode(script_name, args):
         print "Called updateCode on " + script_name
+        subprocess.check_output("git pull", cwd= upTinPATH + "/" + script_name, shell=True).strip()
+        refreshWindow()
+
 
 
     def separateScripts():
-        # fill lack of update button
-        cmds.separator(height=10, width=50, style='none')
-
-        # dashes to separate
+        # dashes to separate.  9 columns
         cmds.text( label="---------------------")
-        cmds.separator(height=10, width=50, style='none')
-        cmds.separator(height=10, width=50, style='none')
-        cmds.separator(height=10, width=50, style='none')
-        cmds.separator(height=10, width=50, style='none')
-        cmds.separator(height=10, width=50, style='none')
-        cmds.separator(height=10, width=50, style='none')
-        cmds.separator(height=10, width=50, style='none')
-        cmds.separator(height=10, width=50, style='none')
+        cmds.separator(height=20, width=10, style='none')
+        cmds.separator(height=20, width=10, style='none')
+        cmds.separator(height=20, width=10, style='none')
+        cmds.separator(height=20, width=10, style='none')
+        cmds.separator(height=20, width=10, style='none')
+        cmds.separator(height=20, width=10, style='none')
+        cmds.text( label="---------------------")
+
 
     # determine if your local commit is the latest
     def isLatestCallback(mayaScript):
@@ -72,47 +92,49 @@ def createUI(pWindowTitle, pApplyCallback, connectionResponse):
         else:
             return "No"
 
+    # initial separator
+    separateScripts()
     # create rows for each script in TINUP_PATH
     for mayaScript in scriptArray:
 
         cmds.text( label=mayaScript['script_name'])
         cmds.text( label=mayaScript['local_commit_timestamp'])
         cmds.text( label=mayaScript['is_latest'])
-        cmds.separator(height=10, width=50, style='none')
         cmds.text( label=mayaScript['local_upvote_percentage'])
-        cmds.separator(height=10, width=50, style='none')
+        cmds.separator(height=10, width=5, style='none')
 
         cmds.button(label='Upvote', command=partial(postUpvote, mayaScript['script_name'], mayaScript['local_commit_id']))
         cmds.button(label='Downvote', command=partial(postDownvote, mayaScript['script_name'], mayaScript['local_commit_id']))
         if (mayaScript['is_latest'] == False):
             # provide upgrade button!
-            cmds.button(label='Get Latest', command=partial(udpateCode, mayaScript['script_name']) )
+            cmds.button(label='Get Latest', command=partial(updateCode, mayaScript['script_name']) )
 
             # input information about latest version of the script
             cmds.text( label="  -- latest")
             cmds.text( label=mayaScript['latest_commit_timestamp'])
-            cmds.separator(height=10, width=50, style='none')
-            cmds.separator(height=10, width=50, style='none')
+            cmds.separator(height=10, width=5, style='none')
             cmds.text( label=mayaScript['latest_upvote_percentage'])
-            cmds.separator(height=10, width=50, style='none')
+            cmds.separator(height=10, width=5, style='none')
+            cmds.separator(height=10, width=5, style='none')
+            cmds.separator(height=10, width=5, style='none')
+            cmds.separator(height=10, width=5, style='none')
 
         else:
-            separateScripts()
+            # fill in for lack up 'Upgrade' button
+            cmds.separator(height=10, width=5, style='none')
 
-    cmds.separator(height=10, width=50, style='none')
-    cmds.separator(height=10, width=50, style='none')
-    separateScripts()
+        separateScripts()
+
 
     cmds.separator(h=10, style='none')
     cmds.separator(h=10, style='none')
     cmds.separator(h=10, style='none')
+
+    # completely refresh your window and scripts
+    cmds.button(label='Refresh', command=refreshWindow)
 
     # see if you can connect to the server
-    if (connectionResponse == "Hello World from TinUp!"):
-        cmds.text(label="Status: Connected!")
-    else:
-        cmds.text(label="Status: Failure connecting...")
-
+    cmds.text(label=connectionResponse)
 
 
     cmds.showWindow()
@@ -155,8 +177,7 @@ def loadScripts():
 
 def testConnectionCallback():
     connectionResponse = requests.get(serverURL).text
-    return connectionResponse
+    return "Successfully connected!"
 
 
-loadScripts();
-createUI('UpTin', applyCallback, testConnectionCallback())
+startWindow()
